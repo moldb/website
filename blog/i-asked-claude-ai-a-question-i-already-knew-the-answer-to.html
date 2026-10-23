@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>I asked Claude AI a question I already knew the answer to | B-Tech Consulting</title>
+  <link rel="canonical" href="https://b-techconsulting.org/blog/i-asked-claude-ai-a-question-i-already-knew-the-answer-to">
+  <meta name="description" content="A simple RNA-seq normalization check showed how an AI can get a basic step wrong, explain the error away, and still sound right. Why intermediate results, saved trajectories and domain expertise matter.">
+  <meta property="og:title" content="I asked Claude AI a question I already knew the answer to | B-Tech Consulting">
+  <meta property="og:description" content="A simple RNA-seq normalization check showed how an AI can get a basic step wrong, explain the error away, and still sound right. Why intermediate results, saved trajectories and domain expertise matter.">
+  <meta property="og:type" content="article">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f7a6c'/%3E%3Ctext x='32' y='44' font-family='Georgia' font-size='36' font-weight='700' fill='white' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="B-Tech Consulting home">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span class="brand-name">B-Tech Consulting<small>Brian Moldover, Ph.D.</small></span>
+      </a>
+      <button class="menu-btn" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="nav" id="site-nav" aria-label="Main">
+        <a href="/">Home</a>
+        <a href="/services">Services</a>
+        <a href="/experience">Experience</a>
+        <a href="/publications">Publications</a>
+        <a href="/blog" aria-current="page">Blog</a>
+        <a class="nav-cta" href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+
+    <section class="hero page-hero">
+      <div class="wrap article">
+        <a class="back-link" href="/blog">&larr; All posts</a>
+        <h1 style="max-width:none">I asked Claude AI a question I already knew the answer to</h1>
+        <div class="article-meta"><time datetime="2026-10-23">October 23, 2026</time> &middot; Brian Moldover, Ph.D.</div>
+      </div>
+    </section>
+    <section class="block" style="padding-top:56px">
+      <div class="wrap">
+        <article class="article">
+      <p>I was working on an RNA-seq dataset recently and decided to test Claude on a step I could do in my head. I connected the tools and plugins, then asked it a question I already knew the answer to. The point was not to get the answer. It was to see how the AI would handle a simple step that a whole analysis pipeline depends on.</p>
+      <h2>The question</h2>
+      <p>Five genes from one control sample. Each had exactly 50,000 raw counts:</p>
+      <ul>
+        <li>GAPDH, 1.3 kb</li>
+        <li>ACTB, 1.8 kb</li>
+        <li>MT-CO1, 1.5 kb</li>
+        <li>ALB, 2.0 kb</li>
+        <li>XIST, 19.3 kb</li>
+      </ul>
+      <p>Are these genes expressed at the same level? Rank them from highest to lowest and give me RPK and TPM.</p>
+      <p>The answer is simple. Equal counts do not mean equal expression, because longer transcripts collect more reads. Divide the counts by length in kilobases and the order is GAPDH, MT-CO1, ACTB, ALB, XIST. The shortest gene ranks highest and the longest ranks lowest.</p>
+      <h2>What the AI got right</h2>
+      <p>The arithmetic was correct. Every RPK value was right:</p>
+      <table>
+        <thead><tr><th>Gene</th><th>Length (kb)</th><th>Counts</th><th>RPK</th></tr></thead>
+        <tbody>
+          <tr><td>GAPDH</td><td>1.3</td><td>50,000</td><td>38,462</td></tr>
+          <tr><td>MT-CO1</td><td>1.5</td><td>50,000</td><td>33,333</td></tr>
+          <tr><td>ACTB</td><td>1.8</td><td>50,000</td><td>27,778</td></tr>
+          <tr><td>ALB</td><td>2.0</td><td>50,000</td><td>25,000</td></tr>
+          <tr><td>XIST</td><td>19.3</td><td>50,000</td><td>2,591</td></tr>
+        </tbody>
+      </table>
+      <p>It also raised several good points without being asked. Five genes with identical counts look like a data problem. A 250,000-read total is implausible for a full library. ALB is liver-specific, so strong expression in a control sample is worth checking. XIST indicates the donor&rsquo;s sex and should match the sample metadata. When I later asked about running differential expression on TPM, it said no and explained why, which is correct.</p>
+      <h2>What it got wrong</h2>
+      <p>The ranking was wrong. The table labeled &ldquo;Rank&rdquo; listed the genes in the order I typed them, which put ACTB second and MT-CO1 third. Below the table, the AI gave the correct order. It then said the table was &ldquo;in your order, not this one&rdquo;. So the table, which was the thing I had asked for, contradicted the text under it, and the AI explained the mismatch away instead of correcting it.</p>
+      <p>That explaining away is what concerns me. A wrong number can be fixed. A wrong number with a plausible explanation is the kind of error that gets through review, because it reads as if someone already checked.</p>
+      <p>A similar thing happened later, when I asked it to apply a Benjamini-Hochberg correction to eight p-values. Its first table had a column labeled &ldquo;BH-adjusted&rdquo; containing values from before the step that keeps adjusted p-values in rank order. XIST showed 0.0600 and APOA1 0.0640, when both should have been 0.0547. It fixed this in a second table a few lines down, but if you had taken the first table, you would have used numbers labeled &ldquo;adjusted&rdquo; that weren&rsquo;t.</p>
+      <p>Neither mistake is exotic. They are the kind a first-year student makes, and they appear in the middle of output that is otherwise competent and well formatted. That is why they are dangerous.</p>
+      <h2>Lesson one: check intermediate results, not just the final answer</h2>
+      <p>The final answer is built from intermediate steps. If the ranking is wrong, everything downstream that uses it is wrong too: the normalization, the comparison to treated samples, and the list of genes you report to a client. If you only look at the conclusion, you won&rsquo;t see where it came from.</p>
+      <p>So you must look at the results, including every intermediate table, to make sure the final output is correct. AI is an amazing research tool. It does the arithmetic faster than I can and it raises questions I might not think of. But it is no substitute for a good pair of eyes.</p>
+      <h2>Lesson two: domain expertise is what makes the check possible</h2>
+      <p>Checking only works if you know what the right answer looks like. I caught the ranking error immediately because I know a 1.5 kb transcript with the same count as a 1.8 kb transcript has the higher RPK. I knew why APOA1, with a raw p-value of 0.04, correctly fails at an FDR of 0.05. I knew the questions about ALB and XIST were real biology, not filler.</p>
+      <p>Without that background, the output would have looked fine. It was confident, well organized and mostly correct. A reviewer who can&rsquo;t do the calculation, or doesn&rsquo;t know what to expect in a polyA-selected control sample, has no way to tell the correct parts from the errors.</p>
+      <p>AI doesn&rsquo;t remove the need for expertise. It moves it. Less time goes into producing the numbers and more into judging them. The judging can&rsquo;t be delegated to the tool that produced the numbers.</p>
+      <h2>Lesson three: tell the AI to save its trajectory</h2>
+      <p>The most practical thing I learned from this is to tell the AI explicitly to save its trajectory: every question, every intermediate result and every correction, in order. A summary isn&rsquo;t enough. When I first asked for the session to be saved, I got a tidy summary of the conclusions, which left out the error and its correction. I had to ask again for the verbatim transcript.</p>
+      <p>The full trajectory is what lets you review how a result was reached, not just what it was. It is also what you need if a client, a collaborator or a reviewer asks how you got a number. In regulated or high-stakes work, a record of the reasoning is part of the result.</p>
+      <h2>The short version</h2>
+      <ul>
+        <li>Use AI. It is fast, it is often right, and it will raise useful questions.</li>
+        <li>Check every intermediate result, not only the final answer.</li>
+        <li>Be suspicious of explanations that make a discrepancy go away.</li>
+        <li>Make sure someone with the relevant expertise reviews the output.</li>
+        <li>Save the full trajectory so the work can be audited.</li>
+      </ul>
+      <p>If you are bringing AI into a research workflow and want a scientist to check that the results hold up, <a href="/contact">get in touch</a>.</p>
+
+
+          <p style="margin-top:2.5em"><a class="btn btn-outline" href="/contact">Discuss this with me</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <div>
+        <div class="brand-name" style="color:var(--hero-ink);margin-bottom:10px">B-Tech Consulting</div>
+        <p style="max-width:42ch">Independent scientific consulting in molecular genetics, computational biology and drug discovery for biotech, pharma and research organizations. Based in Greater Philadelphia; working on-site, hybrid and remote.</p>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/experience">Experience</a></li>
+          <li><a href="/publications">Publications</a></li>
+          <li><a href="/blog">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:brian@b-techconsulting.org">brian@b-techconsulting.org</a></li>
+          <li><a href="tel:+14452214295">(445) 221-4295</a></li>
+          <li><a href="https://www.linkedin.com/in/brian-moldover-625732420/" rel="noopener" target="_blank">LinkedIn</a></li>
+          <li><a href="https://scholar.google.com/citations?user=Ze5_UuoAAAAJ&hl=en" rel="noopener" target="_blank">Google Scholar</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <div class="wrap">
+        <span>&copy; <span id="year">2026</span> B-Tech Consulting, Ltd. &middot; Brian Moldover, Ph.D.</span>
+        <span>Philadelphia, PA</span>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/site.js"></script>
+</body>
+</html>
